@@ -1,0 +1,279 @@
+<?php
+
+/**
+ * Insert dummy users having random properties.
+ */
+function _statistics_client_insert_dummy_users($n_user, $schema_name) {
+  for ($i = 0; $i < $n_user; $i++) {
+    $id = db_insert($schema_name)
+      ->fields(array(
+            'name' => 'user' . $i,
+            'posts' => rand(0, 40) + rand(0, 40),
+            'votes' => rand(0, 10) + rand(0, 20),
+            ))
+      ->execute();
+  }
+}
+
+/**
+ * Insert dummy paper having random rating.
+ */
+function _statistics_client_insert_dummy_papers($schema_name) {
+  $papers = array(
+    array(
+      'author' => 'D. Helbing and W. Yu',
+      'title' => 'The outbreak of cooperation among success-driven individuals under noisy conditions'
+    ),
+    array(
+      'author' => 'D. Helbing, Y. Wenjian and H. Rauhut',
+      'title' => 'Self-organization and emergence in social systems: Modeling the coevolution of social environments and cooperative behavior'
+    ),
+    array(
+      'author' => 'D. Helbing',
+      'title' => 'Managing complexity in socio-economic systems'
+    ),
+    array(
+      'author' => 'J.R.G. Dyer, A. Johansson, D. Helbing, I.D. Couzin and J. Krause',
+      'title' => 'Leadership, consensus decision making and collective behaviour in humans'
+    ),
+    array(
+      'author' => 'D. Helbing',
+      'title' => 'Pattern formation, social forces, and diffusion instability in games with success-driven motion'
+    ),
+    array(
+      'author' => 'D. Helbing and A. Mazloumian',
+      'title' => 'Operation regimes and slower-is-faster effect in the control of traffic intersections'
+    )
+  );
+  foreach ($papers as $paper) {
+    $id = db_insert($schema_name)
+      ->fields(array(
+            'author' => $paper['author'],
+            'title' => $paper['title'],
+            'rating' => rand(0, 100) * 0.01 + 4,
+            'votes' => rand(10, 30),
+            ))
+      ->execute();
+  }
+}
+/**
+ * Insert dummy news having random rating.
+ */
+function _statistics_client_insert_dummy_news($schema_name, $type) {
+  $news = array();
+  $news['a'] =
+  array(
+          array('author' => 'D. Helbing', 'title' => 'News mining might have predicted Arab Spring', 'time' => 1315915200),
+          array('author' => 'D. Helbing', 'title' => 'When We\'re Cowed by the Crowd', 'time' => 1306584000),
+          array('author' => 'D. Helbing', 'title' => 'A More Human Virtual Crowd.  A new vision-based approach could help prevent crowd disasters.', 'time' => 1303300800),
+          array('author' => 'D. Helbing', 'title' => 'Earth project aims to \'simulate everything\'', 'time' => 1293537600),
+          array('author' => 'D. Helbing', 'title' => 'Towards a socio-economic knowledge accelerator', 'time' => 1249473600),
+       );
+
+  $news['b'] =
+  array(
+          array('author' => 'S. Balietti', 'title' => 'What Causes Deadly \'Crowd-Quakes\'?', 'time' => 1303473600),
+          array('author' => 'S. Balietti', 'title' => 'Wisdom about Crowds.  To model the behaviour of humans en masse, treat them as people, not molecules', 'time' => 1303300800),
+          array('author' => 'S. Balietti', 'title' => 'Current Driving Conditions Michigan', 'time' => 1276689600),
+          array('author' => 'S. Balietti', 'title' => 'about the Workshop on "Coping with Crises in Complex Socio-Economic Systems"', 'time' => 1248523200),
+       );
+
+  $news['c'] =
+  array(
+          array('author' => 'D. Huber', 'title' => 'Predicting crowd behaviour', 'time' => 1303387200),
+          array('author' => 'D. Huber', 'title' => 'How crowds move: because people want to be free', 'time' => 1303214400),
+          array('author' => 'D. Huber', 'title' => 'Who should pay for the police?', 'time' => 1276516800),
+          array('author' => 'D. Huber', 'title' => 'CCSS Conference pictures and videos online', 'time' => 1248523200),
+       );
+
+  foreach ($news[$type] as $newsrec) {
+    $id = db_insert($schema_name)
+      ->fields(array(
+            'author' => $newsrec['author'],
+            'title' => $newsrec['title'],
+            'rating' => rand(0, 100) * 0.01 + 4,
+            'votes' => rand(10, 30),
+            'created' => $newsrec['time'],
+            ))
+      ->execute();
+  }
+}
+
+/**
+ * Implements hook_install()
+ */
+function statistics_client_install() {
+  if (!db_table_exists('statistics_client_query_whitelist')) {
+      drupal_install_schema('statistics_client');
+  }
+  $schema_name = 'statistics_client_query_whitelist';
+  $whitelist = array( 
+    'SELECT COUNT(*) as count FROM {statistics_client_paper_a}',
+    'SELECT id, author, title, rating, votes, created FROM {statistics_client_news_a} ORDER BY created DESC',
+    'SELECT COUNT(id) as count, AVG(posts) as posts, AVG(votes) as votes FROM {statistics_client_user_a}',
+    'SELECT id, author, title, rating, votes, created FROM {statistics_client_news_a} ORDER BY rating DESC LIMIT 1',
+    'SELECT id, author, title, rating, votes FROM {statistics_client_paper_a} ORDER BY rating DESC LIMIT 1',
+    'SELECT COUNT(*) as count FROM {statistics_client_paper_b}',
+    'SELECT id, author, title, rating, votes, created FROM {statistics_client_news_b} ORDER BY created DESC',
+    'SELECT COUNT(id) as count, AVG(posts) as posts, AVG(votes) as votes FROM {statistics_client_user_b}',
+    'SELECT id, author, title, rating, votes, created FROM {statistics_client_news_b} ORDER BY rating DESC LIMIT 1',
+    'SELECT id, author, title, rating, votes FROM {statistics_client_paper_b} ORDER BY rating DESC LIMIT 1',
+    'SELECT COUNT(*) as count FROM {statistics_client_paper_c}',
+    'SELECT id, author, title, rating, votes, created FROM {statistics_client_news_c} ORDER BY created DESC',
+    'SELECT COUNT(id) as count, AVG(posts) as posts, AVG(votes) as votes FROM {statistics_client_user_c}',
+    'SELECT id, author, title, rating, votes, created FROM {statistics_client_news_c} ORDER BY rating DESC LIMIT 1',
+    'SELECT id, author, title, rating, votes FROM {statistics_client_paper_c} ORDER BY rating DESC LIMIT 1',
+    'SELECT id, author, title, rating, votes, created FROM {statistics_client_news_a} ORDER BY created DESC LIMIT 1',
+    'SELECT id, author, title, rating, votes, created FROM {statistics_client_news_b} ORDER BY created DESC LIMIT 1',
+    'SELECT id, author, title, rating, votes, created FROM {statistics_client_news_c} ORDER BY created DESC LIMIT 1',
+  );
+  foreach ($whitelist as $allowed) {
+    $id = db_insert($schema_name)
+        ->fields(array(
+                'query' => $allowed,
+                'description' => 'N/A'
+                ))
+        ->execute();
+  }
+  $n_users = array('a' => 63, 'b' => 42, 'c' => 127);
+  foreach (array('a', 'b', 'c') as $type) {
+    $schema_name = 'statistics_client_paper_' . $type;
+    _statistics_client_insert_dummy_papers($schema_name);
+    $schema_name = 'statistics_client_news_' . $type;
+    _statistics_client_insert_dummy_news($schema_name, $type);
+    $schema_name = 'statistics_client_user_' . $type;
+    _statistics_client_insert_dummy_users($n_users[$type], $schema_name);
+  }
+}
+
+/**
+ * Implements hook_uninstall()
+ */
+function statistics_client_uninstall() {
+  drupal_uninstall_schema('statistics_client');
+}
+
+/**
+ * Implements hook_schema()
+ */
+function statistics_client_schema() {
+  $schema = array();
+  $schema['statistics_client_query_whitelist'] = array(
+    'description' => 'Stores allowed queries.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => 'true',
+        'not null' => TRUE,
+        'description' => 'primary identifier',
+      ),
+      'query' => array(
+        'type' => 'varchar',
+        'length' => 1024,
+        'not null' => TRUE,
+        'description' => 'query that may be called via a RPC',
+      ),
+      'description' => array(
+        'type' => 'varchar',
+        'length' => 256,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  foreach (array('a', 'b', 'c') as $type) {
+    $schema['statistics_client_paper_' . $type] = array(
+      'description' => 'Stores papers and their ratings.',
+      'fields' => array(
+        'id' => array(
+          'type' => 'serial',
+          'unsigned' => 'true',
+          'not null' => TRUE,
+          'description' => 'primary identifier',
+        ),
+        'author' => array(
+          'type' => 'varchar',
+          'length' => 256,
+          'not null' => TRUE,
+        ),
+        'title' => array(
+          'type' => 'varchar',
+          'length' => 256,
+          'not null' => TRUE,
+        ),
+        'rating' => array(
+          'type' => 'float',
+          'not null' => TRUE,
+        ),
+        'votes' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+        ),
+      ),
+      'primary key' => array('id'),
+    );
+    $schema['statistics_client_news_' . $type] = array(
+      'description' => 'Stores news and their ratings.',
+      'fields' => array(
+        'id' => array(
+          'type' => 'serial',
+          'unsigned' => 'true',
+          'not null' => TRUE,
+          'description' => 'primary identifier',
+        ),
+        'author' => array(
+          'type' => 'varchar',
+          'length' => 256,
+          'not null' => TRUE,
+        ),
+        'title' => array(
+          'type' => 'varchar',
+          'length' => 256,
+          'not null' => TRUE,
+        ),
+        'rating' => array(
+          'type' => 'float',
+          'not null' => TRUE,
+        ),
+        'votes' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+        ),
+        'created' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+      ),
+      'primary key' => array('id'),
+    );
+    $schema['statistics_client_user_' . $type] = array(
+      'description' => 'Stores users.',
+      'fields' => array(
+        'id' => array(
+          'type' => 'serial',
+          'unsigned' => 'true',
+          'not null' => TRUE,
+          'description' => 'primary identifier',
+        ),
+        'name' => array(
+          'type' => 'varchar',
+          'length' => 256,
+          'not null' => TRUE,
+        ),
+        'posts' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+        ),
+        'votes' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+        ),
+      ),
+      'primary key' => array('id'),
+    );
+  }
+  return $schema;
+}
+

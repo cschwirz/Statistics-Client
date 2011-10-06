@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * @file
+ * Send statistics to a server.
+ *
+ * A longer description will follow here.
+ */
+
+require_once 'includes/statistics_client.rpc.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function statistics_client_menu() {
+  $items['admin/config/statistics_client'] = array(
+    'title' => 'Statistics Client',
+    'description' => 'Description of Statistics Client',
+    'position' => 'right',
+    'weight' => -5,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer site configuration'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  $items['admin/config/statistics_client/settings'] = array(
+    'title' => 'Statistics Client settings',
+    'description' => 'Change how Statistics Client behaves',
+    'page callback' => 'statistics_client_admin_settings',
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'statistics_client.admin.inc',
+  );
+  return $items;
+}

@@ -1,0 +1,8 @@
+name = Statistics Client
+description = "A module to send statistics to a statistics server"
+package = Pro Drupal Development
+core = 7.x
+files[] = statistics_client.module
+files[] = statistics_client.install
+files[] = statistics_client.admin.inc
+configure=admin/config/statistics_client/settings
